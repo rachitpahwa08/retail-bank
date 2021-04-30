@@ -21,7 +21,7 @@ public class CustomerInput {
 	private int id;
 	@NotEmpty(message = "Can't be empty")
 	@Size(min = 2, message = "minimum 2 characaters required")
-	private String Name;
+	private String name;
 	
 	@NotEmpty
 	@NotNull

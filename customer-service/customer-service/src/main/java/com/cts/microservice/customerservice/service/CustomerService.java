@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.cts.microservice.customerservice.exception.CustomerNotFoundException;
 import com.cts.microservice.customerservice.model.Account;
 import com.cts.microservice.customerservice.model.AccountCreationStatus;
 import com.cts.microservice.customerservice.model.Customer;
 import com.cts.microservice.customerservice.repository.CustomerRepository;
 import com.cts.microservice.customerservice.util.CustomerInput;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 
 public class CustomerService {
@@ -56,19 +59,25 @@ public class CustomerService {
 //	        return customers;
 //	    }
 	
-//	 public Customer getCustomerDetails(int customerId) {
-//		 Customer cust = repository.getCustomerbyCustomerId(customerId);
-//		 return cust;
-//	 }
+	 public Customer getCustomerDetails(int customerId) throws CustomerNotFoundException {
+		 Customer cust = repository.getCustomerByCustomerId(customerId);
+		 
+		 if(cust == null) {
+			 	System.out.println("anrhia  aifnwajn");
+	    		throw new CustomerNotFoundException("Customer Doesn't Exist");
+		 }
+		 return cust;
+	 }
 	 
 	 
 	 
-	    public Customer getCustomer(int customerid) {
-	    	return repository.findById(customerid).get();
-}
+//	    public Customer getCustomer(int customerid) throws CustomerNotFoundException {
+//	    	Customer customer = repository.findById(customerid).get();
+//	    	log.info(" "+customer);
+//	    	System.out.println(" "+customer);
+//	    	if(customer == null )
+//	    		throw new CustomerNotFoundException("Customer Doesn't Exist");
+//	    	return customer;
+//}
 	    
-	    
-	    
-	    
-	    
-}
+	    }

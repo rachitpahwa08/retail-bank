@@ -10,6 +10,6 @@ import com.cts.microservice.customerservice.model.Customer;
 @Component
 public interface CustomerRepository extends JpaRepository<Customer, Integer>{
 
-	//public Customer getCustomerbyCustomerId(int customerId);
+	public Customer getCustomerByCustomerId(int customerId);
 	
 }

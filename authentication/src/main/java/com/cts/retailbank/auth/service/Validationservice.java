@@ -23,6 +23,7 @@ public class Validationservice {
 			authenticationResponse.setUserid(jwtutil.extractUsername(jwt));
 			authenticationResponse.setValid(true);
 			authenticationResponse.setName(userRepo.findById(jwtutil.extractUsername(jwt)).get().getUsername());
+			authenticationResponse.setRole(jwtutil.extractRole(jwt));
 		} else {
 			authenticationResponse.setValid(false);
 		}

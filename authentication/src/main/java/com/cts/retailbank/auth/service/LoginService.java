@@ -34,8 +34,10 @@ public class LoginService {
 
 		if (userdetails.getPassword().equals(appuser.getPassword()) ) {
 			userid = appuser.getUserid();
-			token = jwtutil.generateToken(userdetails);
-			role = appuser.getRole();
+			role = userdetails.getAuthorities().toString();
+			role=role.substring(6, role.length()-1);
+			log.info("Role From DB-->{}" ,role);
+			token = jwtutil.generateToken(userdetails,role);
 			return new AppUser(userid, null, null, token,role);
 		} else {
 			throw new AppUserNotFoundException("Username/Password is incorrect...Please check");

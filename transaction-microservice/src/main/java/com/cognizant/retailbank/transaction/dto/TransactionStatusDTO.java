@@ -24,4 +24,5 @@ public class TransactionStatusDTO {
 	private String senderAccountId;
 	private String recieverAccountId;
 	private float closingBalance;
+	private float recieverClosingBalance;
 }

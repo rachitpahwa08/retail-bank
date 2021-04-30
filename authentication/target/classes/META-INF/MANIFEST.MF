@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Built-By: Parichay
-Build-Jdk: 15.0.1
+Built-By: Rachit
+Build-Jdk: 15.0.2
 Implementation-Title: authentication
 Implementation-Version: 0.0.1-SNAPSHOT
 Implementation-Vendor-Id: com.cts.retailbank

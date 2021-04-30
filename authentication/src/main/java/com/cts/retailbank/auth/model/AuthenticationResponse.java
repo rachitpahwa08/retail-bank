@@ -15,4 +15,5 @@ public class AuthenticationResponse {
 	private String userid;
 	private String name;
 	private boolean isValid;
+	private String role;
 }

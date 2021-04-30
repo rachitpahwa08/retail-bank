@@ -45,7 +45,7 @@ public class FinancialTransactions {
 	@JoinColumn(name="transaction_type_code")
 	private RefTransactionTypes refTransactionTypes;
 	private LocalDateTime dateOfTransaction;
-	private String recieverAccountId;
+	private String otherPartyAccountId;
 	private float amountOfTransaction;
 	private float closingBalance;
 }

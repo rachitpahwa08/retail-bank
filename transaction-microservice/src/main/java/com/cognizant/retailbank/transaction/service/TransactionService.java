@@ -20,7 +20,10 @@ import com.cognizant.retailbank.transaction.repositry.RefTranactionTypeRepositry
 import com.cognizant.retailbank.transaction.repositry.TransactionRepositry;
 import com.cognizant.retailbank.transaction.utils.ConvertToDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class TransactionService {
 
 	@Autowired
@@ -39,7 +42,7 @@ public class TransactionService {
 		financialTransactions.setRefTransactionTypes(refTransactionTypes);
 		financialTransactions.setClosingBalance(accountBalance+amount);
 		FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactions);
-		return ConvertToDTO.convertToTransactionDTO(result, true);
+		return ConvertToDTO.convertToTransactionDTO(result, true,0);
 	}
 	
 	public TransactionStatusDTO withdraw(String accountId,float amount,float accountBalance) {
@@ -57,7 +60,7 @@ public class TransactionService {
 			financialTransactions.setRefTransactionTypes(refTransactionTypes);
 			financialTransactions.setClosingBalance(accountBalance-amount);
 			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactions);
-			return ConvertToDTO.convertToTransactionDTO(result, true);
+			return ConvertToDTO.convertToTransactionDTO(result, true,0);
 		}
 		else {
 			refTransactionStatus.setTransactionStatusCode("FAILURE");
@@ -69,7 +72,7 @@ public class TransactionService {
 			financialTransactions.setRefTransactionTypes(refTransactionTypes);
 			financialTransactions.setClosingBalance(accountBalance);
 			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactions);
-			return ConvertToDTO.convertToTransactionDTO(result, false);
+			return ConvertToDTO.convertToTransactionDTO(result, false,0);
 		}
 		
 	}
@@ -82,36 +85,50 @@ public class TransactionService {
 		return transactionRepositry.findAllByAccountIdIn(accounts,sort);
 	}
 	
-	public TransactionStatusDTO transfer(String sourceAccountId,String targetAccountId,float amount,float accountBalance) {
+	public TransactionStatusDTO transfer(String sourceAccountId,String targetAccountId,float amount,float accountBalance,float recieverAccountBalance) {
 		boolean isAllowed=true;
-		FinancialTransactions financialTransactions=new FinancialTransactions();
+		FinancialTransactions financialTransactionsSender=new FinancialTransactions();
 		RefTransactionStatus refTransactionStatus=new RefTransactionStatus();
-		RefTransactionTypes refTransactionTypes=new RefTransactionTypes();
+		RefTransactionTypes refTransactionTypesSender=new RefTransactionTypes();
+		log.debug("Account balance {}",recieverAccountBalance);
+		log.debug("Account balance {}",accountBalance);
+		log.debug("Amount {}",amount);
 		if(isAllowed) {
+			FinancialTransactions financialTransactionsReciever =new FinancialTransactions();
+			RefTransactionTypes refTransactionTypesReciever=new RefTransactionTypes();
+			refTransactionTypesReciever.setTransactionTypeCode("RECIEVED");
 			refTransactionStatus.setTransactionStatusCode("SUCCESS");
-			refTransactionTypes.setTransactionTypeCode("TRANSFER");
-			financialTransactions.setAccountId(sourceAccountId);
-			financialTransactions.setRecieverAccountId(targetAccountId);
-			financialTransactions.setAmountOfTransaction(amount);
-			financialTransactions.setDateOfTransaction(LocalDateTime.now());
-			financialTransactions.setRefTransactionStatus(refTransactionStatus);
-			financialTransactions.setRefTransactionTypes(refTransactionTypes);
-			financialTransactions.setClosingBalance(accountBalance-amount);
-			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactions);
-			return ConvertToDTO.convertToTransactionDTO(result, true);
+			refTransactionTypesSender.setTransactionTypeCode("TRANSFER");
+			financialTransactionsSender.setAccountId(sourceAccountId);
+			financialTransactionsSender.setOtherPartyAccountId(targetAccountId);
+			financialTransactionsSender.setAmountOfTransaction(amount);
+			financialTransactionsSender.setDateOfTransaction(LocalDateTime.now());
+			financialTransactionsSender.setRefTransactionStatus(refTransactionStatus);
+			financialTransactionsSender.setRefTransactionTypes(refTransactionTypesSender);
+			financialTransactionsSender.setClosingBalance(accountBalance-amount);
+			financialTransactionsReciever.setClosingBalance(recieverAccountBalance+amount);
+			financialTransactionsReciever.setAccountId(targetAccountId);
+			financialTransactionsReciever.setAmountOfTransaction(amount);
+			financialTransactionsReciever.setDateOfTransaction(LocalDateTime.now());
+			financialTransactionsReciever.setOtherPartyAccountId(sourceAccountId);
+			financialTransactionsReciever.setRefTransactionStatus(refTransactionStatus);
+			financialTransactionsReciever.setRefTransactionTypes(refTransactionTypesReciever);
+			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactionsSender);
+			transactionRepositry.save(financialTransactionsReciever);
+			return ConvertToDTO.convertToTransactionDTO(result, true,recieverAccountBalance+amount);
 		}
 		else {
 			refTransactionStatus.setTransactionStatusCode("FAILURE");
-			refTransactionTypes.setTransactionTypeCode("TRANSFER");
-			financialTransactions.setAccountId(sourceAccountId);
-			financialTransactions.setRecieverAccountId(targetAccountId);
-			financialTransactions.setAmountOfTransaction(amount);
-			financialTransactions.setDateOfTransaction(LocalDateTime.now());
-			financialTransactions.setRefTransactionStatus(refTransactionStatus);
-			financialTransactions.setRefTransactionTypes(refTransactionTypes);
-			financialTransactions.setClosingBalance(accountBalance);
-			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactions);
-			return ConvertToDTO.convertToTransactionDTO(result, false);
+			refTransactionTypesSender.setTransactionTypeCode("TRANSFER");
+			financialTransactionsSender.setAccountId(sourceAccountId);
+			financialTransactionsSender.setOtherPartyAccountId(targetAccountId);
+			financialTransactionsSender.setAmountOfTransaction(amount);
+			financialTransactionsSender.setDateOfTransaction(LocalDateTime.now());
+			financialTransactionsSender.setRefTransactionStatus(refTransactionStatus);
+			financialTransactionsSender.setRefTransactionTypes(refTransactionTypesSender);
+			financialTransactionsSender.setClosingBalance(accountBalance);
+			FinancialTransactions result=transactionRepositry.saveAndFlush(financialTransactionsSender);
+			return ConvertToDTO.convertToTransactionDTO(result, false,0);
 		}
 	}
 	
@@ -125,7 +142,7 @@ public class TransactionService {
 			statementList=transactionRepositry.findAllByDateOfTransactionBetween(fromDate, toDate);
 		}
 		List<TransactionStatusDTO> accountStatement=statementList.stream().map(x -> {
-			return ConvertToDTO.convertToTransactionDTO(x, true);
+			return ConvertToDTO.convertToTransactionDTO(x, true,0);
 		}).collect(Collectors.toList());
 		return accountStatement;
 	}

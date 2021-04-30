@@ -21,6 +21,7 @@ import com.cognizant.retailbank.transaction.model.RefTransactionStatus;
 import com.cognizant.retailbank.transaction.repositry.TransactionRepositry;
 import com.cognizant.retailbank.transaction.service.TransactionService;
 import com.cognizant.retailbank.transaction.utils.DepositInput;
+import com.cognizant.retailbank.transaction.utils.TransferInput;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,8 +48,8 @@ public class TransactionController {
 	}
 	
 	@PostMapping("/transfer")
-	public TransactionStatusDTO transferAmount(@RequestBody DepositInput input) {
-		return transactionService.transfer(String.valueOf(input.getSourceAccountId()), String.valueOf(input.getTargetAccountId()), input.getAmount(),input.getBalance());
+	public TransactionStatusDTO transferAmount(@RequestBody TransferInput input) {
+		return transactionService.transfer(String.valueOf(input.getSourceAccountId()), String.valueOf(input.getTargetAccountId()), input.getAmount(),input.getSourceClosingBalance(),input.getTargetClosingBalance());
 	}
 	
 	@GetMapping("/getTransactions")

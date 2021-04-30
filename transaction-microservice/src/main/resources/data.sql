@@ -2,7 +2,7 @@ INSERT into REF_TRANSACTION_STATUS
 VALUES ('SUCCESS','Transaction Success'),('FAILURE','Transaction Failed');
 
 INSERT into ref_transaction_types
-VALUES ('DEPOSIT','Amount Deposited'),('WITHDRAW','Amount Withdrawn'),('TRANSFER','Amount Transfer');
+VALUES ('DEPOSIT','Amount Deposited'),('WITHDRAW','Amount Withdrawn'),('TRANSFER','Amount Transfer'),('RECIEVED','Amount Credited via some transaction');
 
 INSERT INTO "PUBLIC"."FINANCIAL_TRANSACTIONS" VALUES
 (100001, '10054546', 22200.0, 42200.0, TIMESTAMP '2021-03-28 13:39:18.578187', NULL, NULL, NULL, 'SUCCESS', 'DEPOSIT', NULL),
